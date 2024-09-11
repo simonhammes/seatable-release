@@ -13,6 +13,7 @@ services:
       # Overrides
       - ./scripts/enterpoint.sh:/templates/enterpoint.sh:ro
       - ./scripts/seatable.sh:/templates/seatable.sh:ro
+      - ./scripts/init_sql.py:/templates/init_sql.py:ro
     environment:
       - DB_HOST=mariadb
       - DB_ROOT_PASSWD=${SEATABLE_MYSQL_ROOT_PASSWORD:?Variable is not set or empty}
@@ -37,6 +38,7 @@ services:
       - SEATABLE_ENABLE_CREATE_BASE_FROM_TEMPLATE=${SEATABLE_ENABLE_CREATE_BASE_FROM_TEMPLATE:-}
       - SEATABLE_HELP_LINK=${SEATABLE_HELP_LINK:-https://docs.seatable.io}
       - SEATABLE_LOG_LEVEL=${SEATABLE_LOG_LEVEL:-INFO}
+      - SEATABLE_ENV2CONF=true
     labels:
       caddy: ${SEATABLE_SERVER_PROTOCOL:-https}://${SEATABLE_SERVER_HOSTNAME:?Variable is not set or empty}
       caddy.reverse_proxy: "{{upstreams 80}}"
