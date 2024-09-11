@@ -7,18 +7,26 @@ function log() {
     echo "[$time] $1 " &>> /opt/seatable/logs/init.log
 }
 
-is_first_start=0
-# init config
-if [ "`ls -A /opt/seatable/conf`" = "" ]; then
-    log "Start init"
+if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
+    # Safety first
+    set -euo pipefail
 
-    is_first_start=1
-
-    /templates/seatable.sh init-sql &>> /opt/seatable/logs/init.log
-
-    /templates/seatable.sh init &>> /opt/seatable/logs/init.log
+    # Initialize database
+    /templates/seatable.sh init-sql
 else
-    log "Conf exists"
+    is_first_start=0
+    # init config
+    if [ "`ls -A /opt/seatable/conf`" = "" ]; then
+        log "Start init"
+
+        is_first_start=1
+
+        /templates/seatable.sh init-sql &>> /opt/seatable/logs/init.log
+
+        /templates/seatable.sh init &>> /opt/seatable/logs/init.log
+    else
+        log "Conf exists"
+    fi
 fi
 
 
