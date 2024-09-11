@@ -13,6 +13,27 @@ if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
 
     # Initialize database
     /templates/seatable.sh init-sql
+
+    log "Generating configuration files based on environment variables..."
+    /templates/generate-config-files.py
+
+    log "Successfully generated configuration files!"
+
+    log "Checking dtable_web_settings.py for syntax errors..."
+    python3 -m py_compile /opt/seatable/conf/dtable_web_settings.py
+
+    ln -sf /opt/seatable/conf/nginx.conf /etc/nginx/sites-enabled/default
+
+    log "Reloading NGINX..."
+    nginx -s reload
+
+    if [[ -f '/opt/seatable/conf/current_version.txt' ]]; then
+        # Only write version to file if it did not exist yet since the version is used to check if updates need to be applied
+        echo "${server_version}" > /opt/seatable/conf/current_version.txt
+    fi
+
+    # Since the rest of the code would have to be modified...
+    set +euo pipefail
 else
     is_first_start=0
     # init config
@@ -114,11 +135,12 @@ else
     /templates/seatable.sh start
 
     # init superuser
-    if [[ ${is_first_start} -eq 1 ]]; then
+    # TODO: Should this run every time?
+    # if [[ ${is_first_start} -eq 1 ]]; then
         sleep 5
         log "Auto create superuser"
         /templates/seatable.sh auto-create-superuser ${is_first_start} &>> /opt/seatable/logs/init.log &
-    fi
+    # fi
 
 fi
 

@@ -14,6 +14,7 @@ services:
       - ./scripts/enterpoint.sh:/templates/enterpoint.sh:ro
       - ./scripts/seatable.sh:/templates/seatable.sh:ro
       - ./scripts/init_sql.py:/templates/init_sql.py:ro
+      - ./scripts/generate-config-files.py:/templates/generate-config-files.py:ro
     environment:
       - DB_HOST=mariadb
       - DB_ROOT_PASSWD=${SEATABLE_MYSQL_ROOT_PASSWORD:?Variable is not set or empty}
@@ -39,6 +40,9 @@ services:
       - SEATABLE_HELP_LINK=${SEATABLE_HELP_LINK:-https://docs.seatable.io}
       - SEATABLE_LOG_LEVEL=${SEATABLE_LOG_LEVEL:-INFO}
       - SEATABLE_ENV2CONF=true
+      # TODO: Load from .env
+      - DTABLE_WEB__SECRET_KEY=dtable-web-secret-key
+      - DTABLE_WEB__DTABLE_PRIVATE_KEY=dtable-web-dtable-private-key
     labels:
       caddy: ${SEATABLE_SERVER_PROTOCOL:-https}://${SEATABLE_SERVER_HOSTNAME:?Variable is not set or empty}
       caddy.reverse_proxy: "{{upstreams 80}}"
