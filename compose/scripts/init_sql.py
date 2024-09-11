@@ -20,10 +20,13 @@ def wait_for_mysql():
 
 
 wait_for_mysql()
-os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD -e "create database ccnet_db charset utf8";')
-os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD -e "create database seafile_db charset utf8";')
-os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD -e "create database dtable_db charset utf8";')
 
+# TODO: Add error handling!
+os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD -e "create database if not exists ccnet_db charset utf8";')
+os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD -e "create database if not exists seafile_db charset utf8";')
+os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD -e "create database if not exists dtable_db charset utf8";')
+
+# TODO: Make these scripts idempotent
 os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD ccnet_db </opt/seatable/seatable-server-latest/sql/mysql/ccnet.sql')
 os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD seafile_db </opt/seatable/seatable-server-latest/sql/mysql/seafile.sql')
 os.system('mysql -h $DB_HOST -p$DB_ROOT_PASSWD dtable_db </opt/seatable/seatable-server-latest/sql/mysql/dtable.sql')
