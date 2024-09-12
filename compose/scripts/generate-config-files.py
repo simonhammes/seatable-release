@@ -90,7 +90,7 @@ DEFAULT_VALUES = {
     'DTABLE_DB__general__port': '7777',
     'DTABLE_DB__general__log_dir': '/opt/seatable/logs',
     'DTABLE_DB__storage__data_dir': '/opt/seatable/db-data',
-    'DTABLE_DB__dtable_cache__dtable_server_url': 'http://127.0.0.1:5000',
+    'DTABLE_DB__dtable0x20cache__dtable_server_url': 'http://127.0.0.1:5000',
     'DTABLE_DB__backup__dtable_storage_server_url': 'http://127.0.0.1:6666',
     'DTABLE_DB__backup__keep_backup_num': '3',
 
