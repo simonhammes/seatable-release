@@ -670,14 +670,3 @@ if __name__ == '__main__':
     generate_conf_file(path=DTABLE_EVENTS_CONF_PATH, prefix='DTABLE_EVENTS__')
     generate_conf_file(path=API_GATEWAY_CONF_PATH, prefix='API_GATEWAY__')
     generate_nginx_conf_file(path=NGINX_CONF_PATH)
-
-    sys.exit(0)
-
-    generate_conf_file(path=SEAFDAV_CONF_PATH, prefix='SEAFDAV__')
-    generate_conf_file(path=SEAFEVENTS_CONF_PATH, prefix='SEAFEVENTS__')
-
-
-
-    generate_seahub_settings_file(path=SEAHUB_SETTINGS_PATH)
-
-    generate_nginx_conf_file(path=NGINX_CONF_PATH)
