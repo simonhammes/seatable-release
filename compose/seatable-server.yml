@@ -124,9 +124,9 @@ services:
           "--mariadbupgrade",
           "--innodb_initialized",
         ]
-      interval: 20s
+      interval: 1s
       retries: 3
-      start_period: 30s
+      start_period: 5s
       timeout: 10s
       # On older database containers without healthcheck users present you might need to create them manually,
       # otherwise the container stays unhealthy.
@@ -141,7 +141,7 @@ services:
       - backend-seatable-net
     healthcheck:
       test: ["CMD-SHELL", "timeout 2 bash -c '</dev/tcp/localhost/11211'"]
-      interval: 20s
+      interval: 1s
       retries: 3
       timeout: 5s
 
@@ -153,7 +153,7 @@ services:
       - backend-seatable-net
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 20s
+      interval: 1s
       retries: 3
       timeout: 5s
 
