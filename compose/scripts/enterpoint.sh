@@ -11,7 +11,12 @@ if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
     # Safety first
     set -euo pipefail
 
-    # Initialize database
+    # TODO: Remove this horrendous workaround
+    log "Patching dtable.sql..."
+    # Negative lookahead (?!) to avoid patching again on the next run (does not work with sed)
+    perl -i -pe 's/CREATE TABLE(?! IF)/CREATE TABLE IF NOT EXISTS/g' /opt/seatable/seatable-server-latest/sql/mysql/dtable.sql
+    sed -i 's/INSERT INTO/INSERT IGNORE INTO/g' /opt/seatable/seatable-server-latest/sql/mysql/dtable.sql
+
     /templates/seatable.sh init-sql
 
     log "Generating configuration files based on environment variables..."
