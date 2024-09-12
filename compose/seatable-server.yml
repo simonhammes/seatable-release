@@ -1,8 +1,9 @@
 ---
 services:
   seatable-server:
-    image: ${SEATABLE_IMAGE:-seatable/seatable-enterprise:5.0.8}
-    restart: unless-stopped
+    # image: ${SEATABLE_IMAGE:-seatable/seatable-enterprise:5.0.8}
+    build: .
+    # restart: unless-stopped
     container_name: seatable-server
     volumes:
       - "/opt/seatable-server:/shared"
@@ -15,6 +16,7 @@ services:
       - ./scripts/seatable.sh:/templates/seatable.sh:ro
       - ./scripts/init_sql.py:/templates/init_sql.py:ro
       - ./scripts/generate-config-files.py:/templates/generate-config-files.py:ro
+      - ./scripts/create-plugins-repository.py:/templates/create-plugins-repository.py:ro
     environment:
       - DB_HOST=mariadb
       - DB_ROOT_PASSWD=${SEATABLE_MYSQL_ROOT_PASSWORD:?Variable is not set or empty}

@@ -109,11 +109,20 @@ function check_license() {
 
 function init_plugins_repo() {
     if [ $ENABLE_DTABLE_WEB = "true" ]; then
-        if grep -q -F "PLUGINS_REPO_ID" /opt/seatable/conf/dtable_web_settings.py; then
-            return 0
+        if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
+            # Safety first
+            set -euo pipefail
+
+            /templates/create-plugins-repository.py
+
+            set +euo pipefail
         else
-            repo_id=$(python -c "from seaserv import seafile_api; repo_id = seafile_api.create_repo('plugins repo', 'plugins repo', 'dtable@seafile'); print(repo_id)")
-            echo -e "\nPLUGINS_REPO_ID='"${repo_id}"'" >>/opt/seatable/conf/dtable_web_settings.py
+            if grep -q -F "PLUGINS_REPO_ID" /opt/seatable/conf/dtable_web_settings.py; then
+                return 0
+            else
+                repo_id=$(python -c "from seaserv import seafile_api; repo_id = seafile_api.create_repo('plugins repo', 'plugins repo', 'dtable@seafile'); print(repo_id)")
+                echo -e "\nPLUGINS_REPO_ID='"${repo_id}"'" >>/opt/seatable/conf/dtable_web_settings.py
+            fi
         fi
     fi
 }
