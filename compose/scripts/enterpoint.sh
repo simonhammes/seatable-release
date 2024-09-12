@@ -32,7 +32,7 @@ if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
     log "Reloading NGINX..."
     nginx -s reload
 
-    if [[ -f '/opt/seatable/conf/current_version.txt' ]]; then
+    if [[ ! -f '/opt/seatable/conf/current_version.txt' ]]; then
         # Only write version to file if it did not exist yet since the version is used to check if updates need to be applied
         echo "${server_version}" > /opt/seatable/conf/current_version.txt
     fi
