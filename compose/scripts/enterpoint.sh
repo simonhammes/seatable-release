@@ -144,6 +144,7 @@ else
     # if [[ ${is_first_start} -eq 1 ]]; then
         sleep 5
         log "Auto create superuser"
+        # TODO: Causes warnings in log file if user already exists
         /templates/seatable.sh auto-create-superuser ${is_first_start} &>> /opt/seatable/logs/init.log &
     # fi
 
