@@ -6,7 +6,7 @@ services:
     # restart: unless-stopped
     container_name: seatable-server
     volumes:
-      - "/opt/seatable-server:/shared"
+      - "./volumes/seatable-server:/shared"
       - type: bind
         source: "./seatable-license.txt"
         target: "/shared/seatable/seatable-license.txt"
@@ -112,7 +112,7 @@ services:
       - MYSQL_LOG_CONSOLE=true
       - MARIADB_AUTO_UPGRADE=1
     volumes:
-      - "/opt/mariadb:/var/lib/mysql"
+      - "./volumes/mariadb:/var/lib/mysql"
     networks:
       - backend-seatable-net
     healthcheck:
