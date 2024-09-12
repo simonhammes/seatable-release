@@ -1,0 +1,17 @@
+services:
+  minio:
+    container_name: minio
+    image: quay.io/minio/minio
+    networks:
+      - backend-seatable-net
+    volumes:
+      - ./volumes/minio:/data
+    environment:
+      - MINIO_ROOT_USER=root
+      - MINIO_ROOT_PASSWORD=topsecret
+      - MINIO_SERVER_URL=http://localhost:9000
+    command: server /data --console-address ":9090"
+
+networks:
+  backend-seatable-net:
+    name: backend-seatable-net
