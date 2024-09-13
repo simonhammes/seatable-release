@@ -22,6 +22,7 @@ SEAFILE_CONF_PATH = os.path.join(CONFIG_DIR, 'seafile.conf')
 CCNET_CONF_PATH = os.path.join(CONFIG_DIR, 'ccnet.conf')
 DTABLE_WEB_CONF_PATH = os.path.join(CONFIG_DIR, 'dtable_web_settings.py')
 DTABLE_WEB_OVERRIDES_CONF_PATH = os.path.join(CONFIG_DIR, 'dtable_web_settings_overrides.py')
+SEATABLE_ROLES_PATH = os.path.join(CONFIG_DIR, 'seatable_roles.json')
 GUNICORN_CONF_PATH = os.path.join(CONFIG_DIR, 'gunicorn.py')
 DTABLE_SERVER_CONFIG_PATH = os.path.join(CONFIG_DIR, 'dtable_server_config.json')
 DTABLE_DB_CONF_PATH = os.path.join(CONFIG_DIR, 'dtable-db.conf')
@@ -377,6 +378,15 @@ CACHES = {
         for line in lines:
             file.write(line)
             file.write('\n')
+
+        # Roles can be specified using a JSON file
+        if os.path.exists(SEATABLE_ROLES_PATH):
+            logger.info('Loading user role definitions from %s into %s...', os.path.basename(SEATABLE_ROLES_PATH), os.path.basename(DTABLE_WEB_CONF_PATH))
+            with open (SEATABLE_ROLES_PATH, "r") as roles_file:
+                file.writelines([
+                    f'\n# Role definitions imported from {os.path.basename(SEATABLE_ROLES_PATH)}:\n',
+                    f'ENABLED_ROLE_PERMISSIONS = {repr(json.load(roles_file))}\n',
+                ])
 
         # Allow loading overrides file
         if os.path.exists(DTABLE_WEB_OVERRIDES_CONF_PATH):
