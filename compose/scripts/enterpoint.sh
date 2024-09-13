@@ -156,14 +156,21 @@ else
     log "Start server"
     /templates/seatable.sh start
 
+    if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
+        set -euo pipefail
+
+        # Necessary in order to import pymysql library inside create-admin-user.py
+        PYTHONPATH=/opt/seatable/seatable-server-latest/dtable-web/thirdpart /templates/create-admin-user.py
+
+        set +euo pipefail
+    fi
+
     # init superuser
-    # TODO: Should this run every time?
-    # if [[ ${is_first_start} -eq 1 ]]; then
+    if [[ ${is_first_start} -eq 1 ]]; then
         sleep 5
         log "Auto create superuser"
-        # TODO: Causes warnings in log file if user already exists
         /templates/seatable.sh auto-create-superuser ${is_first_start} &>> /opt/seatable/logs/init.log &
-    # fi
+    fi
 
 fi
 
