@@ -383,9 +383,15 @@ CACHES = {
         if os.path.exists(SEATABLE_ROLES_PATH):
             logger.info('Loading user role definitions from %s into %s...', os.path.basename(SEATABLE_ROLES_PATH), os.path.basename(DTABLE_WEB_CONF_PATH))
             with open (SEATABLE_ROLES_PATH, "r") as roles_file:
+                try:
+                    contents = json.load(roles_file)
+                except Exception as e:
+                    logger.error('Failed to load %s due to %s: %s', os.path.basename(SEATABLE_ROLES_PATH), type(e).__name__, str(e))
+                    sys.exit(1)
+
                 file.writelines([
                     f'\n# Role definitions imported from {os.path.basename(SEATABLE_ROLES_PATH)}:\n',
-                    f'ENABLED_ROLE_PERMISSIONS = {repr(json.load(roles_file))}\n',
+                    f'ENABLED_ROLE_PERMISSIONS = {repr(contents)}\n',
                 ])
 
         # Allow loading overrides file

@@ -24,6 +24,12 @@ if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
 
     /templates/seatable.sh init-sql
 
+    OVERRIDES_FILE="/opt/seatable/conf/dtable_web_settings_overrides.py"
+    if [ -f "${OVERRIDES_FILE}" ]; then
+        log "Checking ${OVERRIDES_FILE##*/} for syntax errors..."
+        python3 -m py_compile "${OVERRIDES_FILE}"
+    fi
+
     log "Generating configuration files based on environment variables..."
     /templates/generate-config-files.py
 
@@ -31,6 +37,9 @@ if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
 
     log "Checking dtable_web_settings.py for syntax errors..."
     python3 -m py_compile /opt/seatable/conf/dtable_web_settings.py
+
+    log "Checking dtable_server_config.json for syntax errors..."
+    python3 -m json.tool "/opt/seatable/conf/dtable_server_config.json" > /dev/null
 
     if [ "${ENABLE_NGINX:-true}" = "true" ]; then
         ln -sf /opt/seatable/conf/nginx.conf /etc/nginx/sites-enabled/default
