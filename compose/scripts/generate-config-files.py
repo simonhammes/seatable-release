@@ -185,9 +185,7 @@ limit_request_line = 8190
 """
 
     config = {
-        # daemon mode must be turned off if logs should go to stdout
-        # 'daemon': os.environ.get('SEAFILE_LOG_TO_STDOUT', 'false').lower() == 'false',
-        # TODO: Always log to stdout?
+        # Note: daemon mode must be turned off if logs should go to stdout
         'daemon': True,
     }
 
@@ -299,85 +297,6 @@ CACHES = {
         'port': os.environ.get('DTABLE_WEB__CACHE_PORT', '11211'),
     }
 
-    logging_template = """
-import sys
-
-LOGGING = {
-    'version': 1,
-    # Enable existing loggers so that gunicorn errors will be bubbled up when
-    # server side error page "Internal Server Error" occurs.
-    # ref: https://www.caktusgroup.com/blog/2015/01/27/Django-Logging-Configuration-logging_config-default-settings-logger/
-    'disable_existing_loggers': False,
-    'formatters': {
-        'standard': {
-            'format': '%(format)s'
-        },
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue'
-        },
-    },
-    'handlers': {
-        'console': {
-            'level': '%(level)s',
-            # 'filters': ['require_debug_true'],
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-            'stream': sys.stdout,
-        },
-        'default': {
-            'level': '%(level)s',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-            'stream': sys.stdout,
-        },
-        'onlyoffice_handler': {
-            'level': '%(level)s',
-            'class': 'logging.StreamHandler',
-            'formatter': 'standard',
-            'stream': sys.stdout,
-        },
-        'mail_admins': {
-            'level': '%(level)s',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        }
-    },
-    'loggers': {
-        '': {
-            'handlers': ['default'],
-            'level': '%(level)s',
-            'propagate': True
-        },
-        'django.request': {
-            'handlers': ['default', 'mail_admins'],
-            'level': '%(level)s',
-            'propagate': False
-        },
-        'py.warnings': {
-            'handlers': ['console', ],
-            'level': '%(level)s',
-            'propagate': False
-        },
-        'onlyoffice': {
-            'handlers': ['onlyoffice_handler', ],
-            'level': '%(level)s',
-            'propagate': False
-        },
-    }
-}
-"""
-
-    logging_config = {
-        # TODO: Validate value?
-        'level': os.environ.get('SEAFILE_LOG_LEVEL', 'WARNING').upper(),
-        'format': '%(asctime)s [%(levelname)s] %(name)s:%(lineno)s %(funcName)s %(message)s',
-    }
-
     # Generate lines for all the other settings
     lines = []
 
@@ -395,26 +314,28 @@ LOGGING = {
 
     # These variables are handled separately and should not cause auto-generated variable definitions
     excluded_variables = [
-        # TODO
         'DTABLE_WEB__CACHE_BACKEND',
         'DTABLE_WEB__CACHE_HOST',
         'DTABLE_WEB__CACHE_PORT',
-        # Exclude variables that are lists (for now)
-        # TODO
-        'SEAHUB__CSRF_TRUSTED_ORIGINS',
-        'SEAHUB__ALLOWED_HOSTS',
-        'SEAHUB__VIRUS_SCAN_NOTIFY_LIST',
-        'SEAHUB__REST_FRAMEWORK_THROTTING_WHITELIST',
+    ]
+
+    # Exclude variables that are lists/tuples/dictionaries (for now)
+    unsupported_variables = [
+        'DTABLE_WEB__API_THROTTLE_RATES'
+        'DTABLE_WEB__CUSTOM_COLORS'
+        'DTABLE_WEB__LANGUAGES',
+        'DTABLE_WEB__REST_FRAMEWORK_THROTTING_WHITELIST',
     ]
 
     for key, value in variables.items():
         if key in excluded_variables:
             continue
-
-        # Ignore variables for SAML attribute mapping configuration
-        # TODO
-        if key.startswith('SEAHUB__SAML_ATTRIBUTE_MAPPING__'):
+        elif key.startswith('DTABLE_WEB__SAML_ATTRIBUTE_MAPPING'):
+            # Ignore variables for SAML attribute mapping configuration, these are handled separately
             continue
+        elif key in unsupported_variables:
+            logger.error('Error: Variable "%s" is currently not supported', key)
+            sys.exit(1)
 
         parts = key.split('__')
 
@@ -424,7 +345,7 @@ LOGGING = {
 
         key = parts[1]
 
-        # TODO: Check if key exists in dtable_web/settings.py to prevent errors due to typos
+        # TODO: Check if key exists in dtable-web/seahub/settings.py to prevent errors due to typos
 
         # Handle OnlyOffice/Collabora file extension variables
         # TODO
@@ -453,15 +374,10 @@ LOGGING = {
         file.write(cache_config_template % cache_config)
         file.write('\n')
 
-        # file.write(f'CSRF_TRUSTED_ORIGINS = ["{get_proto()}://{os.environ.get("SEAFILE_SERVER_HOSTNAME")}"]\n')
-
+        # TODO
         # saml_attribute_mapping = generate_saml_attribute_mapping()
         #if len(saml_attribute_mapping) > 0:
         #    file.write(f'SAML_ATTRIBUTE_MAPPING = {repr(saml_attribute_mapping)}\n')
-
-        #if os.environ.get('SEAFILE_LOG_TO_STDOUT', 'false') == 'true':
-        #    file.write(logging_template % logging_config)
-        #    file.write('\n')
 
         for line in lines:
             file.write(line)

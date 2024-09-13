@@ -6,7 +6,7 @@ import pickle
 import pymysql
 import sys
 
-from base64 import b64encode
+from base64 import b64decode, b64encode
 from seaserv import seafile_api
 
 logger = logging.getLogger('create-plugins-repository')
@@ -17,6 +17,9 @@ DB_HOST = os.getenv('DB_HOST', 'db')
 DB_USER = os.environ.get('DB_USER', 'root')
 DB_ROOT_PASSWD = os.getenv('DB_ROOT_PASSWD', '')
 DTABLE_DB_NAME = 'dtable_db'
+
+def decode_constance_value(value):
+    return pickle.loads(b64decode(value))
 
 if __name__ == '__main__':
     try:
@@ -29,14 +32,15 @@ if __name__ == '__main__':
         # Check if database entry already exists
         # TODO: Race condition if using cluster setup?
         cursor = connection.cursor()
-        rows = cursor.execute("SELECT * FROM constance_config WHERE constance_key = 'PLUGINS_REPO_ID'")
+        rows = cursor.execute("SELECT value FROM constance_config WHERE constance_key = 'PLUGINS_REPO_ID'")
     except Exception as e:
         logger.error('Failed to query constance_config table for existing repository ID: %s', e)
         connection.close()
         sys.exit(1)
 
     if rows >= 1:
-        logger.info('constance_config already contains PLUGINS_REPO_ID')
+        repo_id = cursor.fetchone()[0]
+        logger.info('constance_config already contains PLUGINS_REPO_ID "%s"', decode_constance_value(repo_id))
         connection.close()
         sys.exit(0)
 
