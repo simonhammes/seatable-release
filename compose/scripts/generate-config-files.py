@@ -21,6 +21,7 @@ CONFIG_DIR = '/opt/seatable/conf'
 SEAFILE_CONF_PATH = os.path.join(CONFIG_DIR, 'seafile.conf')
 CCNET_CONF_PATH = os.path.join(CONFIG_DIR, 'ccnet.conf')
 DTABLE_WEB_CONF_PATH = os.path.join(CONFIG_DIR, 'dtable_web_settings.py')
+DTABLE_WEB_OVERRIDES_CONF_PATH = os.path.join(CONFIG_DIR, 'dtable_web_settings_overrides.py')
 GUNICORN_CONF_PATH = os.path.join(CONFIG_DIR, 'gunicorn.py')
 DTABLE_SERVER_CONFIG_PATH = os.path.join(CONFIG_DIR, 'dtable_server_config.json')
 DTABLE_DB_CONF_PATH = os.path.join(CONFIG_DIR, 'dtable-db.conf')
@@ -376,6 +377,15 @@ CACHES = {
         for line in lines:
             file.write(line)
             file.write('\n')
+
+        # Allow loading overrides file
+        if os.path.exists(DTABLE_WEB_OVERRIDES_CONF_PATH):
+            logger.info('Writing overrides from %s into %s...', os.path.basename(DTABLE_WEB_OVERRIDES_CONF_PATH), os.path.basename(DTABLE_WEB_CONF_PATH))
+            with open (DTABLE_WEB_OVERRIDES_CONF_PATH, "r") as overrides:
+                file.writelines([
+                    f'\n# Overrides imported from {os.path.basename(DTABLE_WEB_OVERRIDES_CONF_PATH)}:\n',
+                    overrides.read(),
+                ])
 
 def generate_oauth_attribute_map() -> Dict[str, str]:
     # Returns a dictionary based on environment variables starting with 'DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__'
