@@ -11,6 +11,11 @@ if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
     # Safety first
     set -euo pipefail
 
+    if [ "${ENABLE_NGINX:-true}" = "false" ]; then
+        log "Stopping NGINX... (ENABLE_NGINX=false)"
+        sv d nginx
+    fi
+
     # TODO: Remove this horrendous workaround
     log "Patching dtable.sql..."
     # Negative lookahead (?!) to avoid patching again on the next run (does not work with sed)
@@ -27,10 +32,12 @@ if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
     log "Checking dtable_web_settings.py for syntax errors..."
     python3 -m py_compile /opt/seatable/conf/dtable_web_settings.py
 
-    ln -sf /opt/seatable/conf/nginx.conf /etc/nginx/sites-enabled/default
+    if [ "${ENABLE_NGINX:-true}" = "true" ]; then
+        ln -sf /opt/seatable/conf/nginx.conf /etc/nginx/sites-enabled/default
 
-    log "Reloading NGINX..."
-    nginx -s reload
+        log "Reloading NGINX..."
+        nginx -s reload
+    fi
 
     if [[ ! -f '/opt/seatable/conf/current_version.txt' ]]; then
         # Only write version to file if it did not exist yet since the version is used to check if updates need to be applied
@@ -74,22 +81,23 @@ if [[ -e /shared/seatable/seahub-data/custom ]]; then
     ln -sfn /shared/seatable/seahub-data/custom /opt/seatable/seatable-server-latest/dtable-web/media
 fi
 
+if [ "${ENABLE_NGINX:-true}" = "true" ]; then
+    # check nginx
+    while [ 1 ]; do
+        process_num=$(ps -ef | grep "/usr/sbin/nginx" | grep -v "grep" | wc -l)
+        if [ $process_num -eq 0 ]; then
+            log "Waiting Nginx"
+            sleep 0.2
+        else
+            log "Nginx ready"
+            break
+        fi
+    done
 
-# check nginx
-while [ 1 ]; do
-    process_num=$(ps -ef | grep "/usr/sbin/nginx" | grep -v "grep" | wc -l)
-    if [ $process_num -eq 0 ]; then
-        log "Waiting Nginx"
-        sleep 0.2
-    else
-        log "Nginx ready"
-        break
+    if [[ ! -L /etc/nginx/sites-enabled/default ]]; then
+        ln -s /opt/seatable/conf/nginx.conf /etc/nginx/sites-enabled/default
+        nginx -s reload
     fi
-done
-
-if [[ ! -L /etc/nginx/sites-enabled/default ]]; then
-    ln -s /opt/seatable/conf/nginx.conf /etc/nginx/sites-enabled/default
-    nginx -s reload
 fi
 
 

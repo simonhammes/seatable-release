@@ -583,6 +583,7 @@ if __name__ == '__main__':
             logger.error('Error: Variable "%s" must be provided', variable)
             sys.exit(1)
 
+    # TODO: Goal: Only template configuration files if services are enabled through "ENABLE_" variables
     generate_conf_file(path=SEAFILE_CONF_PATH, prefix='SEAFILE__')
     generate_conf_file(path=CCNET_CONF_PATH, prefix='CCNET__')
     generate_dtable_web_settings_file(path=DTABLE_WEB_CONF_PATH)
@@ -592,4 +593,6 @@ if __name__ == '__main__':
     generate_conf_file(path=DTABLE_STORAGE_SERVER_CONF_PATH, prefix='DTABLE_STORAGE_SERVER__')
     generate_conf_file(path=DTABLE_EVENTS_CONF_PATH, prefix='DTABLE_EVENTS__')
     generate_conf_file(path=API_GATEWAY_CONF_PATH, prefix='API_GATEWAY__')
-    generate_nginx_conf_file(path=NGINX_CONF_PATH)
+
+    if os.environ.get('ENABLE_NGINX', 'true').lower() == 'true':
+        generate_nginx_conf_file(path=NGINX_CONF_PATH)
