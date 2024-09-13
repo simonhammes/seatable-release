@@ -269,8 +269,8 @@ DATABASES = {
     cache_config_template = """
 CACHES = {
     'default': {
-        'BACKEND': '%(backend)s',
-        'LOCATION': '%(host)s:%(port)s',
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://%(host)s:%(port)s',
     },
     'locmem': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -278,23 +278,9 @@ CACHES = {
 }
 """
 
-    # Should use memcached as default cache backend
-    cache_backend = os.environ.get('DTABLE_WEB__CACHE_BACKEND', 'memcached')
-    if cache_backend == 'memcached':
-        django_cache_backend = 'django_pylibmc.memcached.PyLibMCCache'
-        cache_host = os.environ.get('DTABLE_WEB__CACHE_HOST', 'memcached')
-    elif cache_backend == 'redis':
-        django_cache_backend = 'django.core.cache.backends.redis.RedisCache'
-        # The redis:// protocol prefix is required
-        cache_host = f'redis://{os.environ.get("DTABLE_WEB__CACHE_HOST", "redis")}'
-    else:
-        logger.error('Error: Invalid value for variable "DTABLE_WEB_CACHE_BACKEND": "%s" (must be "memcached" or "redis")', cache_backend)
-        sys.exit(1)
-
     cache_config = {
-        'backend': django_cache_backend,
-        'host': cache_host,
-        'port': os.environ.get('DTABLE_WEB__CACHE_PORT', '11211'),
+        'host': os.environ.get('DTABLE_WEB__CACHE_HOST', 'redis'),
+        'port': os.environ.get('DTABLE_WEB__CACHE_PORT', '6379'),
     }
 
     # Generate lines for all the other settings
