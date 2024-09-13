@@ -6,6 +6,8 @@ import logging
 import os
 import sys
 
+from typing import Dict
+
 logger = logging.getLogger('generate-config-files')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -316,8 +318,8 @@ CACHES = {
     for key, value in variables.items():
         if key in excluded_variables:
             continue
-        elif key.startswith('DTABLE_WEB__SAML_ATTRIBUTE_MAPPING'):
-            # Ignore variables for SAML attribute mapping configuration, these are handled separately
+        elif key.startswith('DTABLE_WEB__SAML_ATTRIBUTE_MAP') or key.startswith('DTABLE_WEB__OAUTH_ATTRIBUTE_MAP'):
+            # Ignore variables for OAuth/SAML attribute map configuration, these are handled separately
             continue
         elif key in unsupported_variables:
             logger.error('Error: Variable "%s" is currently not supported', key)
@@ -363,25 +365,40 @@ CACHES = {
         file.write(cache_config_template % cache_config)
         file.write('\n')
 
-        # TODO
-        # saml_attribute_mapping = generate_saml_attribute_mapping()
-        #if len(saml_attribute_mapping) > 0:
-        #    file.write(f'SAML_ATTRIBUTE_MAPPING = {repr(saml_attribute_mapping)}\n')
+        oauth_attribute_map = generate_oauth_attribute_map()
+        if len(oauth_attribute_map) > 0:
+            file.write(f'OAUTH_ATTRIBUTE_MAP = {repr(oauth_attribute_map)}\n')
+
+        saml_attribute_map = generate_saml_attribute_map()
+        if len(saml_attribute_map) > 0:
+            file.write(f'SAML_ATTRIBUTE_MAP = {repr(saml_attribute_map)}\n')
 
         for line in lines:
             file.write(line)
             file.write('\n')
 
-# def generate_saml_attribute_mapping() -> dict[str, tuple[str]]:
-#     saml_attribute_mapping = {}
+def generate_oauth_attribute_map() -> Dict[str, str]:
+    # Returns a dictionary based on environment variables starting with 'DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__'
+    # The prefix is stripped from each key before returning the dictionary
+    return {
+        remove_prefix(key, prefix='DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__'): value
+        for key, value in os.environ.items()
+        if key.startswith('DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__')
+    }
 
-#     variables = {key: value for key, value in os.environ.items() if key.startswith('SEAHUB__SAML_ATTRIBUTE_MAPPING__')}
+def generate_saml_attribute_map() -> Dict[str, str]:
+    # Same logic as generate_oauth_attribute_map()
+    return {
+        remove_prefix(key, prefix='DTABLE_WEB__SAML_ATTRIBUTE_MAP__'): value
+        for key, value in os.environ.items()
+        if key.startswith('DTABLE_WEB__SAML_ATTRIBUTE_MAP__')
+    }
 
-#     for key, value in variables.items():
-#         key = key.removeprefix('SEAHUB__SAML_ATTRIBUTE_MAPPING__')
-#         saml_attribute_mapping[key] = (value,)
-
-#     return saml_attribute_mapping
+# TODO: Use str.removeprefix() once the container contains Python 3.9+
+def remove_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
 
 def generate_nginx_conf_file(path: str):
     config_template = """
