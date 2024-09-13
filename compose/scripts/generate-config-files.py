@@ -398,27 +398,30 @@ CACHES = {
                 ])
 
 def generate_oauth_attribute_map() -> Dict[str, str]:
-    # Returns a dictionary based on environment variables starting with 'DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__'
-    # The prefix is stripped from each key before returning the dictionary
-    return {
-        remove_prefix(key, prefix='DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__'): value
-        for key, value in os.environ.items()
-        if key.startswith('DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__')
-    }
+    attribute_map = {}
+
+    # Taken from seahub/oauth/views.py
+    supported_attributes = ['uid', 'name', 'contact_email', 'user_role', 'employee_id']
+
+    # attribute is the "SeaTable key", value is the key from the OAuth provider
+    for attribute in supported_attributes:
+        if value := os.environ.get(f'DTABLE_WEB__OAUTH_ATTRIBUTE_MAP__{attribute}'):
+            attribute_map[value] = attribute
+
+    return attribute_map
 
 def generate_saml_attribute_map() -> Dict[str, str]:
-    # Same logic as generate_oauth_attribute_map()
-    return {
-        remove_prefix(key, prefix='DTABLE_WEB__SAML_ATTRIBUTE_MAP__'): value
-        for key, value in os.environ.items()
-        if key.startswith('DTABLE_WEB__SAML_ATTRIBUTE_MAP__')
-    }
+    attribute_map = {}
 
-# TODO: Use str.removeprefix() once the container contains Python 3.9+
-def remove_prefix(text, prefix):
-    if text.startswith(prefix):
-        return text[len(prefix):]
-    return text
+    # Taken from seahub/saml/views.py
+    supported_attributes = ['uid', 'name', 'contact_email', 'user_role', 'employee_id']
+
+    # attribute is the "SeaTable key", value is the key from the SAML provider
+    for attribute in supported_attributes:
+        if value := os.environ.get(f'DTABLE_WEB__SAML_ATTRIBUTE_MAP__{attribute}'):
+            attribute_map[value] = attribute
+
+    return attribute_map
 
 def generate_nginx_conf_file(path: str):
     config_template = """
