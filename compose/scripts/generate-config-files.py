@@ -406,6 +406,7 @@ upstream dtable_servers {
 server {
     server_name %(server_name)s;
     listen 80;
+    listen [::]:80;
 
     proxy_set_header X-Forwarded-For $remote_addr;
 
