@@ -17,6 +17,9 @@ services:
       - ./scripts/init_sql.py:/templates/init_sql.py:ro
       - ./scripts/generate-config-files.py:/templates/generate-config-files.py:ro
       - ./scripts/create-plugins-repository.py:/templates/create-plugins-repository.py:ro
+      # Optional:
+      - ./seatable_roles.json:/shared/seatable/conf/seatable_roles.json:ro
+      - ./dtable_web_settings_overrides.py:/shared/seatable/conf/dtable_web_settings_overrides.py:ro
     environment:
       - DB_HOST=mariadb
       - DB_ROOT_PASSWD=${SEATABLE_MYSQL_ROOT_PASSWORD:?Variable is not set or empty}
