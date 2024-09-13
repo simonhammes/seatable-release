@@ -290,7 +290,7 @@ CACHES = {
     prefix = 'DTABLE_WEB__'
 
     # Get all matching variables from "DEFAULT_VALUES"
-    variables = {key: value for key, value in DEFAULT_VALUES.items() if key.startswith(prefix)}
+    variables: dict[str, str] = {key: value for key, value in DEFAULT_VALUES.items() if key.startswith(prefix)}
 
     # Get matching environment variables
     user_variables = {key: value for key, value in os.environ.items() if key.startswith(prefix)}
@@ -333,10 +333,13 @@ CACHES = {
 
         # TODO: Check if key exists in dtable-web/seahub/settings.py to prevent errors due to typos
 
-        # Handle OnlyOffice/Collabora file extension variables
-        # TODO
         if key in ['OFFICE_WEB_APP_FILE_EXTENSION', 'OFFICE_WEB_APP_EDIT_FILE_EXTENSION', 'ONLYOFFICE_FILE_EXTENSION', 'ONLYOFFICE_EDIT_FILE_EXTENSION']:
+            # Convert OnlyOffice/Collabora file extension variables from CSV to tuples
             lines.append(f'{key} = {repr(tuple(value.split(",")))}')
+            continue
+        elif key == 'OAUTH_SCOPE':
+            # Convert OAUTH_SCOPE from CSV to list
+            lines.append(f'{key} = {repr(value.split(","))}')
             continue
 
         # Determine variable type
