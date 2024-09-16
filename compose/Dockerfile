@@ -20,8 +20,11 @@ RUN sed -i 's/PLUGINS_REPO_ID = settings\.PLUGINS_REPO_ID/from constance import 
 # Patch dtable-server
 RUN sed -i 's/dateFile/stdout/g' /opt/seatable/seatable-server-latest/dtable-server/dist/src/logger.js
 
-# Patch dtable-events
-RUN sed -i 's/handlers\.TimedRotatingFileHandler(log_file, when=\x27MIDNIGHT\x27, interval=1, backupCount=7)/logging\.StreamHandler(sys\.stdout)/g' /opt/seatable/seatable-server-latest/dtable-events/dtable_events/dtable_io/utils.py
+# Patch dtable-events (handler, date format, log format)
+RUN sed -i 's/handlers\.TimedRotatingFileHandler(log_file, when=\x27MIDNIGHT\x27, interval=1, backupCount=7)/logging\.StreamHandler(sys\.stdout)/g' /opt/seatable/seatable-server-latest/dtable-events/dtable_events/dtable_io/utils.py && \
+    sed -i 's/logging\.Formatter(\x27%(asctime)s \[%(levelname)s\] %(message)s\x27)/logging\.Formatter(\x27\[%(asctime)s\] \[%(levelname)s\] %(message)s\x27, datefmt=\x27%Y-%m-%d %H:%M:%S\x27)/g' /opt/seatable/seatable-server-latest/dtable-events/dtable_events/dtable_io/utils.py && \
+    sed -i 's/%m\/%d\/%Y/%Y-%m-%d/g' /opt/seatable/seatable-server-latest/dtable-events/dtable_events/app/log.py && \
+    sed -i 's/\[%(asctime)s\] %(filename)s\[line:%(lineno)d\] \[%(levelname)s\] %(message)s/[%(asctime)s] [%(levelname)s] %(filename)s[line:%(lineno)d] %(message)s/g' /opt/seatable/seatable-server-latest/dtable-events/dtable_events/app/log.py
 
 # TODO: Check all the '*Timer' classes in dtable-events which start new processes; their stdout/stderr needs to be forwarded to stdout//proc/1/fd/1
 # TODO: Test this

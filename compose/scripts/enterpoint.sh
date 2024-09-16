@@ -3,7 +3,7 @@
 # log function
 function log() {
     local time=$(date +"%F %T")
-    echo "$time $1 "
+    echo "[$time] $1 "
 
     if [ "{SEATABLE_ENV2CONF:-false}" = "false" ]; then
         echo "[$time] $1 " &>> /opt/seatable/logs/init.log

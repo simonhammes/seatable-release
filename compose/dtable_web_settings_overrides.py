@@ -3,10 +3,10 @@ SITE_TITLE = '123'
 # Logs should go to stdout
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
     'formatters': {
         'standard': {
-            'format': '%(asctime)s [%(levelname)s] %(name)s[%(lineno)s] - %(message)s',
+            'format': '[%(asctime)s] [%(levelname)s] %(name)s[%(lineno)s] - %(message)s',
             'datefmt': '%Y-%m-%d %H:%M:%S'
         },
     },

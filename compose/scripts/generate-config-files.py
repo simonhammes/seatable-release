@@ -8,9 +8,8 @@ import sys
 
 from typing import Dict
 
-logger = logging.getLogger('generate-config-files')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler(sys.stdout))
+logging.basicConfig(format='[%(asctime)s] [%(levelname)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S', stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger()
 
 SERVER_PROTOCOL = os.getenv('SEATABLE_SERVER_PROTOCOL')
 SERVER_HOSTNAME = os.getenv('SEATABLE_SERVER_HOSTNAME')
@@ -188,11 +187,47 @@ timeout = 1200
 limit_request_line = 8190
 
 enable_stdio_inheritance = %(enable_stdio_inheritance)s
+
+# Modify log format (align format)
+logconfig_dict = dict(
+    version=1,
+    disable_existing_loggers=False,
+    root={"level": "INFO", "handlers": ["console"]},
+    loggers={
+        "gunicorn.error": {
+            "level": "INFO",
+            "handlers": ["error_console"],
+            "propagate": True,
+            "qualname": "gunicorn.error"
+        },
+    },
+    handlers={
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "generic",
+            "stream": "ext://sys.stdout"
+        },
+        "error_console": {
+            "class": "logging.StreamHandler",
+            "formatter": "generic",
+            "stream": "ext://sys.stderr"
+        },
+    },
+    formatters={
+        "generic": {
+            "format": "%(format)s",
+            "datefmt": "%(datefmt)s",
+            "class": "logging.Formatter"
+        }
+    }
+)
 """
 
     config = {
         # Must be enabled if logs should go to stdout
-        'enable_stdio_inheritance': os.environ.get('SEATABLE_LOG_TO_STDOUT', 'false').lower() == 'true'
+        'enable_stdio_inheritance': os.environ.get('SEATABLE_LOG_TO_STDOUT', 'false').lower() == 'true',
+        'format': "%(asctime)s [%(levelname)s] [%(process)d] %(message)s",
+        'datefmt': "[%Y-%m-%d %H:%M:%S]",
     }
 
     if not os.path.exists(path):

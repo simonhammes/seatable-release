@@ -6,9 +6,8 @@ import subprocess
 import sys
 import pymysql
 
-logger = logging.getLogger('setup-databases')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(logging.StreamHandler(sys.stdout))
+logging.basicConfig(format='[%(asctime)s] [%(levelname)s] %(message)s', datefmt='%Y-%m-%d %H:%M:%S', stream=sys.stdout, level=logging.INFO)
+logger = logging.getLogger()
 
 DB_HOST = os.getenv('DB_HOST', 'db')
 DB_USER = os.environ.get('DB_USER', 'root')
