@@ -33,10 +33,10 @@ NGINX_CONF_PATH = os.path.join(CONFIG_DIR, 'nginx.conf')
 REQUIRED_VARIABLES = [
     'SEATABLE_SERVER_PROTOCOL',
     'SEATABLE_SERVER_HOSTNAME',
+    'SEATABLE_PRIVATE_KEY',
     'DB_HOST',
     'DB_ROOT_PASSWD',
     'DTABLE_WEB__SECRET_KEY',
-    'DTABLE_WEB__DTABLE_PRIVATE_KEY',
 ]
 
 # Specify default values
@@ -65,7 +65,8 @@ DEFAULT_VALUES = {
 
     'DTABLE_WEB__IS_PRO_VERSION': 'true',
     'DTABLE_WEB__COMPRESS_CACHE_BACKEND': 'locmem',
-    # SECRET_KEY + DTABLE_PRIVATE_KEY are specified using environment variables
+    # SECRET_KEY is specified using environment variable
+    'DTABLE_WEB__DTABLE_PRIVATE_KEY': os.environ.get('SEATABLE_PRIVATE_KEY'),
     'DTABLE_WEB__DTABLE_SERVER_URL': f'{SERVER_URL}/dtable-server/',
     'DTABLE_WEB__DTABLE_SOCKET_URL': f'{SERVER_URL}/',
     'DTABLE_WEB__DTABLE_WEB_SERVICE_URL': f'{SERVER_URL}/',
@@ -83,8 +84,7 @@ DEFAULT_VALUES = {
     'DTABLE_SERVER__password': os.environ.get('DB_ROOT_PASSWD'),
     'DTABLE_SERVER__database': 'dtable_db',
     'DTABLE_SERVER__port': '3306',
-    # TODO: Find a better name for this shared secret
-    'DTABLE_SERVER__private_key': os.environ.get('DTABLE_WEB__DTABLE_PRIVATE_KEY'),
+    'DTABLE_SERVER__private_key': os.environ.get('SEATABLE_PRIVATE_KEY'),
     'DTABLE_SERVER__redis_host': 'redis',
     'DTABLE_SERVER__redis_port': '6379',
     'DTABLE_SERVER__redis_password': '',
