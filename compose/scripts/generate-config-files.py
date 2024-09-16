@@ -482,16 +482,14 @@ server {
 
     proxy_set_header X-Forwarded-For $remote_addr;
 
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
+    add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
+    if ($request_method = 'OPTIONS') {
+        return 204;
+    }
+
     location / {
-        add_header Access-Control-Allow-Origin *;
-        add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-        add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-        if ($request_method = 'OPTIONS') {
-            add_header Access-Control-Allow-Origin *;
-            add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-            add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-            return 204;
-        }
         proxy_pass         http://127.0.0.1:8000;
         proxy_set_header   Host $http_host;
         proxy_set_header   X-Real-IP $remote_addr;
@@ -550,15 +548,6 @@ server {
     }
 
     location /dtable-server {
-        add_header Access-Control-Allow-Origin *;
-        add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-        add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-        if ($request_method = 'OPTIONS') {
-            add_header Access-Control-Allow-Origin *;
-            add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-            add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-            return 204;
-        }
         rewrite ^/dtable-server/(.*)$ /$1 break;
         proxy_pass         http://dtable_servers;
         proxy_redirect     off;
@@ -577,15 +566,6 @@ server {
     }
 
     location /dtable-db/ {
-        add_header Access-Control-Allow-Origin *;
-        add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-        add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-        if ($request_method = 'OPTIONS') {
-            add_header Access-Control-Allow-Origin *;
-            add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-            add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-            return 204;
-        }
         proxy_pass         http://127.0.0.1:7777/;
         proxy_redirect     off;
         proxy_set_header   Host              $http_host;
@@ -599,15 +579,6 @@ server {
     }
 
     location /api-gateway/ {
-        add_header Access-Control-Allow-Origin *;
-        add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-        add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-        if ($request_method = 'OPTIONS') {
-            add_header Access-Control-Allow-Origin *;
-            add_header Access-Control-Allow-Methods GET,POST,PUT,DELETE,OPTIONS;
-            add_header Access-Control-Allow-Headers "deviceType,token, authorization, content-type";
-            return 204;
-        }
         proxy_pass         http://127.0.0.1:7780/;
         proxy_redirect     off;
         proxy_set_header   Host              $http_host;
