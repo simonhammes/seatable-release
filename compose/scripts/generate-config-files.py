@@ -78,6 +78,8 @@ DEFAULT_VALUES = {
     'DTABLE_WEB__TIME_ZONE': os.environ.get('TIME_ZONE', 'UTC'),
     'DTABLE_WEB__DISABLE_ADDRESSBOOK_V1': 'true',
     'DTABLE_WEB__ENABLE_ADDRESSBOOK_V2': 'true',
+    # Store avatars in database
+    'DTABLE_WEB__AVATAR_FILE_STORAGE': 'seahub.base.database_storage.DatabaseStorage',
 
     'DTABLE_SERVER__host': os.environ.get('DB_HOST'),
     'DTABLE_SERVER__user': os.environ.get('DB_USER', 'root'),

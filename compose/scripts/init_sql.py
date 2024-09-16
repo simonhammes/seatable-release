@@ -66,6 +66,19 @@ def import_sql_file(connection: pymysql.Connection, file: str):
 
     logger.info('Successfully imported "%s"', os.path.basename(file))
 
+def create_avatars_table(connection: pymysql.Connection):
+    cursor = connection.cursor()
+
+    sql = 'CREATE TABLE IF NOT EXISTS `avatar_uploaded` (`filename` TEXT NOT NULL, `filename_md5` CHAR(32) NOT NULL PRIMARY KEY, `data` MEDIUMTEXT NOT NULL, `size` INTEGER NOT NULL, `mtime` datetime NOT NULL)'
+
+    try:
+        cursor.execute(sql)
+    except Exception as e:
+        logger.error('Could not create "avatar_uploaded" table: %s', e)
+        sys.exit(1)
+    finally:
+        cursor.close()
+
 if __name__ == '__main__':
     wait_for_mysql()
 
@@ -91,6 +104,6 @@ if __name__ == '__main__':
     connection.select_db(DTABLE_DB_NAME)
     import_sql_file(connection, DTABLE_SQL_PATH)
 
-    # TODO: Create avatars table for dtable-web? Is this even possible in SeaTable?
+    create_avatars_table(connection)
 
     connection.close()
