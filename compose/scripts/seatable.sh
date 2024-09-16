@@ -113,6 +113,7 @@ function init_plugins_repo() {
             # Safety first
             set -euo pipefail
 
+            # TODO: PLUGINS_REPO_ID from dtable_web_settings.py needs to be migrated to constance_config database table (for existing deployments)
             /templates/create-plugins-repository.py
 
             set +euo pipefail

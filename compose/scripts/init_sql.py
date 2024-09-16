@@ -79,6 +79,9 @@ if __name__ == '__main__':
     for database in databases:
         create_database(connection, database)
 
+    # TODO: Is there a particular reason why the code does not use Django's migration tooling?
+    # In my opinion this would make database upgrades (between SeaTable versions) a lot easier.
+
     connection.select_db(CCNET_DB_NAME)
     import_sql_file(connection, CCNET_SQL_PATH)
 
