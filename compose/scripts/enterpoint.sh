@@ -4,7 +4,10 @@
 function log() {
     local time=$(date +"%F %T")
     echo "$time $1 "
-    echo "[$time] $1 " &>> /opt/seatable/logs/init.log
+
+    if [ "{SEATABLE_ENV2CONF:-false}" = "false" ]; then
+        echo "[$time] $1 " &>> /opt/seatable/logs/init.log
+    fi
 }
 
 if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
@@ -128,8 +131,11 @@ fi
 
 # update truststore
 log "Updating CA certificates..."
-update-ca-certificates --verbose &>> /opt/seatable/logs/init.log
-
+if [ "${SEATABLE_LOG_TO_STDOUT:-false}" = "true" ]; then
+    update-ca-certificates --verbose
+else
+    update-ca-certificates --verbose &>> /opt/seatable/logs/init.log
+fi
 
 # logrotate
 if [[ -f /var/spool/cron/crontabs/root ]]; then
@@ -149,7 +155,12 @@ if [[ $SEATABLE_START_MODE = "cluster" ]] || [[ -f /opt/seatable/conf/seatable-c
 
 else
     # auto upgrade sql
-    /templates/seatable.sh python-env /templates/upgrade_sql.py &>> /opt/seatable/logs/init.log
+    if [ "${SEATABLE_LOG_TO_STDOUT:-false}" = "true" ]; then
+        /templates/seatable.sh python-env /templates/upgrade_sql.py
+    else
+        /templates/seatable.sh python-env /templates/upgrade_sql.py &>> /opt/seatable/logs/init.log
+    fi
+
     sleep 5
 
     # auto start

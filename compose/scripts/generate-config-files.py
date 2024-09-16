@@ -172,7 +172,7 @@ def generate_conf_file(path: str, prefix: str):
 
 def generate_gunicorn_config_file(path: str):
     config_template = """
-daemon = %(daemon)s
+daemon = True
 workers = 5
 threads = 5
 
@@ -186,11 +186,13 @@ pidfile = '/opt/seatable/pids/dtable-web.pid'
 timeout = 1200
 
 limit_request_line = 8190
+
+enable_stdio_inheritance = %(enable_stdio_inheritance)s
 """
 
     config = {
-        # Note: daemon mode must be turned off if logs should go to stdout
-        'daemon': True,
+        # Must be enabled if logs should go to stdout
+        'enable_stdio_inheritance': os.environ.get('SEATABLE_LOG_TO_STDOUT', 'false').lower() == 'true'
     }
 
     if not os.path.exists(path):

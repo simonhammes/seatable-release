@@ -170,7 +170,14 @@ function start_server() {
     init_gunicorn
 
     if [ $ENABLE_SEAFILE_SERVER = "true" ]; then
-        seaf-server -F /opt/seatable/conf -c /opt/seatable/ccnet -d /opt/seatable/seafile-data -l /opt/seatable/logs/seafile.log -L /opt/seatable -P /opt/seatable/pids/seafile.pid - &
+        # TODO: All the changes related to stdout also need to be made inside monitor.sh, in case a service is stopped and restarted through monitor.sh
+
+        LOG_TARGET="/opt/seatable/logs/seafile.log"
+        if [ "${SEATABLE_LOG_TO_STDOUT:-false}" = "true" ]; then
+            LOG_TARGET="/proc/1/fd/1"
+        fi
+
+        seaf-server -F /opt/seatable/conf -c /opt/seatable/ccnet -d /opt/seatable/seafile-data -l "${LOG_TARGET}" -L /opt/seatable -P /opt/seatable/pids/seafile.pid - &
         sleep 1
     else
         echo "Skip seafile-server"
@@ -185,7 +192,13 @@ function start_server() {
             echo "dtable-events in foreground mode"
         fi
         cd /opt/seatable/seatable-server-latest/dtable-events/dtable_events
-        python main.py --config-file /opt/seatable/conf/dtable-events.conf --logfile /opt/seatable/logs/dtable-events.log --taskmode $DTABLE_EVENTS_TASK_MODE &>>/opt/seatable/logs/dtable-events.log &
+
+        if [ "${SEATABLE_LOG_TO_STDOUT:-false}" = "true" ]; then
+            python main.py --config-file /opt/seatable/conf/dtable-events.conf --taskmode $DTABLE_EVENTS_TASK_MODE &>> /proc/1/fd/1 &
+        else
+            python main.py --config-file /opt/seatable/conf/dtable-events.conf --logfile /opt/seatable/logs/dtable-events.log --taskmode $DTABLE_EVENTS_TASK_MODE &>>/opt/seatable/logs/dtable-events.log &
+        fi
+
         sleep 1
     else
         echo "Skip dtable-events"
@@ -193,7 +206,13 @@ function start_server() {
 
     if [ $ENABLE_DTABLE_WEB = "true" ]; then
         cd /opt/seatable/seatable-server-latest/dtable-web
-        gunicorn seahub.wsgi:application -c /opt/seatable/conf/gunicorn.py &
+
+        if [ "${SEATABLE_LOG_TO_STDOUT:-false}" = "true" ]; then
+            gunicorn seahub.wsgi:application -c /opt/seatable/conf/gunicorn.py &>> /proc/1/fd/1 &
+        else
+            gunicorn seahub.wsgi:application -c /opt/seatable/conf/gunicorn.py &
+        fi
+
         sleep 0.2
     else
         echo "Skip dtable-web"
@@ -209,7 +228,13 @@ function start_server() {
 
     if [ $ENABLE_DTABLE_SERVER = "true" ]; then
         cd /opt/seatable/seatable-server-latest/dtable-server
-        node --max-old-space-size=$DTABLE_SERVER_MEMORY_SIZE dist/src/index.js &>>/opt/seatable/logs/dtable-server.log &
+
+        LOG_TARGET="/opt/seatable/logs/dtable-server.log"
+        if [ "${SEATABLE_LOG_TO_STDOUT:-false}" = "true" ]; then
+            LOG_TARGET="/proc/1/fd/1"
+        fi
+
+        node --max-old-space-size=$DTABLE_SERVER_MEMORY_SIZE dist/src/index.js &>> "${LOG_TARGET}" &
         sleep 0.2
     else
         echo "Skip dtable-server"
@@ -242,7 +267,12 @@ function start_server() {
         echo "Skip api-gateway"
     fi
 
-    /templates/monitor.sh &>> /opt/seatable/logs/monitor.log &
+    LOG_TARGET="/opt/seatable/logs/monitor.log"
+    if [ "${SEATABLE_LOG_TO_STDOUT:-false}" = "true" ]; then
+        LOG_TARGET="/proc/1/fd/1"
+    fi
+
+    /templates/monitor.sh &>> "${LOG_TARGET}" &
 
     echo
     echo "SeaTable started"

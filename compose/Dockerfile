@@ -12,3 +12,19 @@ RUN sed -i 's/PLUGINS_REPO_ID = settings\.PLUGINS_REPO_ID/from constance import 
     python -m py_compile /opt/seatable/seatable-server-latest/dtable-web/seahub/api2/endpoints/admin/sys_plugins.py && \
     sed -i 's/settings\.PLUGINS_REPO_ID/getattr(config, \x27PLUGINS_REPO_ID\x27)/g' /opt/seatable/seatable-server-latest/dtable-web/seahub/dtable/views.py && \
     python -m py_compile /opt/seatable/seatable-server-latest/dtable-web/seahub/dtable/views.py
+
+###########
+# LOGGING #
+###########
+
+# Patch dtable-server
+RUN sed -i 's/dateFile/stdout/g' /opt/seatable/seatable-server-latest/dtable-server/dist/src/logger.js
+
+# Patch dtable-events
+RUN sed -i 's/handlers\.TimedRotatingFileHandler(log_file, when=\x27MIDNIGHT\x27, interval=1, backupCount=7)/logging\.StreamHandler(sys\.stdout)/g' /opt/seatable/seatable-server-latest/dtable-events/dtable_events/dtable_io/utils.py
+
+# TODO: Check all the '*Timer' classes in dtable-events which start new processes; their stdout/stderr needs to be forwarded to stdout//proc/1/fd/1
+# TODO: Test this
+RUN find /opt/seatable/seatable-server-latest/dtable-events -type f -exec sed -i 's/output=fp//g' {} \;
+
+# TODO: dtable-db, dtable-storage-server, api-gateway
