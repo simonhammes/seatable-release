@@ -5,12 +5,12 @@ function log() {
     local time=$(date +"%F %T")
     echo "[$time] $1 "
 
-    if [ "{SEATABLE_ENV2CONF:-false}" = "false" ]; then
+    if [ "{SEATABLE_ENV_TO_CONF:-false}" = "false" ]; then
         echo "[$time] $1 " &>> /opt/seatable/logs/init.log
     fi
 }
 
-if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
+if [ "${SEATABLE_ENV_TO_CONF:-false}" = "true" ]; then
     # Safety first
     set -euo pipefail
 
@@ -167,7 +167,7 @@ else
     log "Start server"
     /templates/seatable.sh start
 
-    if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
+    if [ "${SEATABLE_ENV_TO_CONF:-false}" = "true" ]; then
         set -euo pipefail
 
         # Necessary in order to import pymysql library inside create-admin-user.py

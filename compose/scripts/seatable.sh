@@ -109,7 +109,7 @@ function check_license() {
 
 function init_plugins_repo() {
     if [ $ENABLE_DTABLE_WEB = "true" ]; then
-        if [ "${SEATABLE_ENV2CONF:-false}" = "true" ]; then
+        if [ "${SEATABLE_ENV_TO_CONF:-false}" = "true" ]; then
             # Safety first
             set -euo pipefail
 
