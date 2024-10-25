@@ -1,5 +1,7 @@
 FROM seatable/seatable-enterprise-testing:5.1.9
 
+COPY scripts/* /templates
+
 ARG SETTINGS_FILE=/opt/seatable/seatable-server-latest/dtable-web/seahub/settings.py
 
 # Patch settings.py to add "PLUGINS_REPO_ID" to CONSTANCE_CONFIG (after DTABLE_EXPORT_MAX_SIZE)
