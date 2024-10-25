@@ -408,6 +408,9 @@ CACHES = {
         file.write(cache_config_template % cache_config)
         file.write('\n')
 
+        # TODO: Check if this can be solved in a different way
+        file.write(f'CSRF_TRUSTED_ORIGINS = ["{SERVER_URL}"]\n')
+
         oauth_attribute_map = generate_oauth_attribute_map()
         if len(oauth_attribute_map) > 0:
             file.write(f'OAUTH_ATTRIBUTE_MAP = {repr(oauth_attribute_map)}\n')
