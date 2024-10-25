@@ -1,4 +1,4 @@
-FROM seatable/seatable-enterprise-testing:5.1.4
+FROM seatable/seatable-enterprise-testing:5.1.9
 
 ARG SETTINGS_FILE=/opt/seatable/seatable-server-latest/dtable-web/seahub/settings.py
 
