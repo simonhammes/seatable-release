@@ -174,7 +174,9 @@ def generate_conf_file(path: str, prefix: str):
 def generate_gunicorn_config_file(path: str):
     config_template = """
 daemon = True
-workers = 5
+# TODO: Make this configurable through environment variables
+# Each worker uses quite a lot of memory
+workers = 2
 threads = 5
 
 # default localhost:8000
