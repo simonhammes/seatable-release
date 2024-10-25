@@ -180,7 +180,7 @@ workers = 2
 threads = 5
 
 # default localhost:8000
-bind = "127.0.0.1:8000"
+bind = "0.0.0.0:8000"
 
 # Pid
 pidfile = '/opt/seatable/pids/dtable-web.pid'
